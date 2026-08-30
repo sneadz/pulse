@@ -10,6 +10,7 @@ Pas de serveur, pas de dépendance : un GitHub Action + `fetch` natif de Node 20
 - `.github/workflows/keep-alive.yml` — cron quotidien à 06:00 UTC (+ lancement manuel)
 - `ping.mjs` — pour chaque base : `GET {url}/rest/v1/keep_alive?select=id&limit=1`
 - `sql/setup.sql` — la table minuscule que le ping va lire
+- `last-run.txt` — horodatage du dernier run, commit automatiquement (voir plus bas)
 
 ## Mise en place
 
@@ -69,8 +70,17 @@ Rien à modifier dans le code.
 - disposeance
 - resept
 
-## ⚠️ Le cron GitHub s'endort
+## Le cron s'auto-entretient
 
-GitHub **désactive les workflows planifiés après 60 jours sans commit** sur le repo.
-Un mail d'avertissement arrive avant. Il suffit de pousser n'importe quel commit
-(ou de cliquer "Enable workflow") pour relancer le cron.
+GitHub désactive les workflows planifiés après **60 jours sans commit** sur le repo.
+Le workflow s'en occupe seul : après le ping, il écrit l'horodatage du run dans
+`last-run.txt` et le commit avec le `GITHUB_TOKEN` par défaut (identité
+`github-actions[bot]`, permission `contents: write`). Le repo reçoit donc un
+commit par jour et n'atteint jamais le seuil des 60 jours.
+
+- Le commit n'a lieu que si le fichier a réellement changé (pas de commit vide).
+- Message : `chore: keep-alive ping <date ISO> [skip ci]` — le `[skip ci]` évite
+  que ce commit redéclenche le workflow (pas de boucle).
+- L'étape tourne avec `if: always()`, donc même un ping en échec garde le cron vivant.
+
+Rien à faire manuellement, aucun PAT à créer.

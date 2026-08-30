@@ -8,12 +8,26 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node ping.mjs
+      - name: Ping Supabase
+        run: node ping.mjs
         env:
           SUPABASE_URLS: ${{ secrets.SUPABASE_URLS }}
           SUPABASE_KEYS: ${{ secrets.SUPABASE_KEYS }}
+      # Un commit quotidien empêche GitHub de désactiver le cron après 60 jours.
+      # always() : même si le ping échoue, le cron doit rester vivant.
+      - name: Auto-commit
+        if: always()
+        run: |
+          date -u +%Y-%m-%dT%H:%M:%SZ > last-run.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet last-run.txt && exit 0
+          git commit -m "chore: keep-alive ping $(cat last-run.txt) [skip ci]" last-run.txt
+          git push
