@@ -15,7 +15,8 @@ if (urls.length !== keys.length) {
 let failed = 0;
 
 for (const [i, url] of urls.entries()) {
-  const base = url.replace(/\/+$/, "");
+  // le dashboard donne l'URL avec /rest/v1/ — on accepte les deux formes
+  const base = url.replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
   const key = keys[i];
   try {
     const res = await fetch(`${base}/rest/v1/keep_alive?select=id&limit=1`, {
