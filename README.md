@@ -1,4 +1,4 @@
-# supabase-keepalive
+# pulse
 
 Un seul repo qui ping toutes mes bases Supabase (plan gratuit) une fois par jour,
 pour éviter la mise en pause après 7 jours d'inactivité.
