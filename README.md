@@ -3,7 +3,7 @@
 Un seul repo qui ping toutes mes bases Supabase (plan gratuit) une fois par jour,
 pour éviter la mise en pause après 7 jours d'inactivité.
 
-Pas de serveur, pas de dépendance : un GitHub Action + `fetch` natif de Node 20.
+Pas de serveur, pas de dépendance : un GitHub Action + le `fetch` natif de Node.
 
 ## Comment ça marche
 
